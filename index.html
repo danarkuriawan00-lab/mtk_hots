@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Asesmen SDN 1 Gondang</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-blue: #0284c7;
+            --secondary-blue: #93c5fd;
+            --accent-green: #10b981;
+            --bg-gray: #f3f4f6;
+        }
+
+        body {
+            background-color: var(--bg-gray);
+            font-family: 'Poppins', sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .app-container {
+            width: 100%;
+            max-width: 450px;
+            height: 100vh;
+            max-height: 850px;
+            background-color: #ffffff;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.1);
+            position: relative;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        @media (min-width: 640px) {
+            .app-container {
+                height: 90vh;
+                border-radius: 24px;
+            }
+        }
+
+        .font-sahabat {
+            font-family: 'Montserrat', sans-serif;
+            letter-spacing: 0.1em;
+            background: linear-gradient(to bottom, #1e293b, #334155);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            filter: drop-shadow(1px 1px 0px rgba(255,255,255,0.3));
+        }
+
+        .btn-masuk {
+            background-color: var(--accent-green);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .btn-masuk:hover {
+            background-color: #059669;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-nav {
+            background-color: var(--primary-blue);
+            border-radius: 12px;
+            color: white;
+            padding: 12px 24px;
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .option-item {
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid #e5e7eb;
+            background-color: #f9fafb;
+        }
+
+        .selected-option {
+            background-color: #dbeafe !important;
+            border-color: #3b82f6 !important;
+            transform: translateX(8px);
+        }
+
+        #loading-overlay {
+            position: absolute;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            backdrop-filter: blur(4px);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            color: white;
+        }
+
+        .input-field {
+            background-color: #ffffff;
+            color: #1e293b;
+            text-align: center;
+            font-weight: bold;
+            padding: 14px;
+            border-radius: 12px;
+            width: 100%;
+            border: 2px solid #cbd5e1;
+            outline: none;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            padding: 20px;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="app-container p-6" id="app">
+    <div id="loading-overlay">
+        <div class="animate-spin rounded-full h-14 w-14 border-4 border-blue-400 border-t-transparent mb-4"></div>
+        <p class="font-bold text-lg">Memproses Data...</p>
+    </div>
+
+    <!-- Login Screen -->
+    <div id="login-screen" class="flex flex-col items-center justify-center h-full">
+        <div class="mb-6">
+            <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiUAgnz3M-C0b4aP4NCccOVpRTBjimetBgZhyphenhyphenkGcMIcG3YY7RhacnjOZFFonylLQGbQ0LQHR7n4cOk7XN8mDb9YmRrXgJi5q7yZCEEKpQ4CYuB9WaZLCNw35_qVPvcRTizOMvZXsYVqmAOSfxDv9bUmpB9z_-2G3ecR_C1CONgsQ5-5U5NA2B9rpU4zfJnZ/w200-h200/sdn%20gng%201.png" alt="Logo SDN 1 Gondang" class="w-28 h-28 object-contain">
+        </div>
+
+        <div class="text-center mb-8">
+            <h1 class="text-2xl font-bold text-gray-900 leading-tight uppercase">Selamat Datang</h1>
+            <h2 class="text-5xl font-black mb-2 font-sahabat uppercase">Sahabat</h2>
+            <p class="text-[10px] text-gray-600 font-medium tracking-widest uppercase text-center">
+                Sistem Asesmen Hasil Amanah Berprestasi Akurat & Terpercaya
+            </p>
+        </div>
+
+        <div class="w-full space-y-4">
+            <input type="text" id="name" placeholder="NAMA LENGKAP" class="input-field uppercase">
+            <input type="number" id="absen" placeholder="NOMOR ABSEN" class="input-field">
+            <button onclick="startExam()" class="w-full py-4 mt-2 rounded-xl btn-masuk text-white font-bold text-lg shadow-lg uppercase">
+                Mulai Ujian
+            </button>
+        </div>
+    </div>
+
+    <!-- Exam Screen -->
+    <div id="exam-screen" class="hidden flex flex-col h-full">
+        <div class="w-full bg-gray-200 rounded-full h-2 mb-6">
+            <div id="progress-bar" class="bg-blue-600 h-2 rounded-full transition-all duration-300" style="width: 0%"></div>
+        </div>
+
+        <div class="flex justify-between items-center mb-6">
+            <span class="bg-blue-600 text-white px-3 py-1 rounded-full text-[10px] font-bold uppercase">
+                Soal <span id="current-number">1</span> / <span id="total-questions">0</span>
+            </span>
+            <span id="timer" class="text-gray-700 font-mono font-bold text-sm">00:00</span>
+        </div>
+        
+        <div class="flex-grow">
+            <div class="bg-blue-50 rounded-2xl p-5 mb-6 border-l-4 border-blue-600">
+                <p id="question-text" class="text-base font-bold text-gray-800 leading-relaxed">Memuat...</p>
+            </div>
+            <div id="options-container" class="space-y-3"></div>
+        </div>
+
+        <div class="flex justify-between items-center mt-6 pb-4 gap-3">
+            <button onclick="prevQuestion()" id="prev-btn" class="btn-nav flex-1 opacity-50" disabled>KEMBALI</button>
+            <button onclick="handleNext()" class="btn-nav flex-1" id="next-btn">LANJUT</button>
+        </div>
+    </div>
+</div>
+
+<div id="confirm-modal" class="modal-overlay">
+    <div class="modal-content">
+        <h3 class="text-xl font-bold mb-2">Selesai?</h3>
+        <p class="text-sm text-gray-600 mb-6">Pastikan semua jawaban sudah terisi.</p>
+        <div class="flex gap-3">
+            <button onclick="hideConfirm()" class="flex-1 py-3 border border-gray-300 rounded-xl font-bold text-gray-500">BATAL</button>
+            <button onclick="finishExam()" class="flex-1 py-3 bg-green-500 text-white rounded-xl font-bold">KIRIM</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const scriptURL = 'https://script.google.com/macros/s/AKfycbz1sq6Ks2rC3lIdcA3i9TRLPebUdny0st73zmcZXI7HVVSZ63hxJWsz3_rVOH3L0gdO/exec'; 
+
+    const questions = [
+{ 
+    id: 1, 
+    text: "Rani melihat sudut pada pojok buku tulisnya. Sudut tersebut berbentuk seperti huruf L. Sudut tersebut disebut sudut ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 2, 
+    text: "Pak Budi membuat taman berbentuk segitiga. Ketiga sudut taman tersebut masing-masing 60°. Jenis segitiga tersebut adalah ....", 
+    options: [{id:'A', text:'segitiga siku-siku'}, {id:'B', text:'segitiga sama kaki'}, {id:'C', text:'segitiga sama sisi'}, {id:'D', text:'segitiga sembarang'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 3, 
+    text: "Siswa kelas 5 diminta mengukur sudut menggunakan busur derajat. Sudut yang diukur menunjukkan angka 40°. Sudut tersebut termasuk ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 4, 
+    text: "Saat bermain layang-layang, Edo melihat bentuk layang-layang memiliki dua pasang sisi yang sama panjang. Bangun datar tersebut adalah ....", 
+    options: [{id:'A', text:'persegi'}, {id:'B', text:'layang-layang'}, {id:'C', text:'persegi panjang'}, {id:'D', text:'jajar genjang'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 5, 
+    text: "Beni menggambar sudut sebesar 120° di bukunya. Sudut tersebut termasuk ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 6, 
+    text: "Di lapangan sekolah terdapat garis yang membentuk sudut 90°. Sudut tersebut sama seperti sudut pada pojok meja. Sudut tersebut disebut ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut refleks'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 7, 
+    text: "Andi: 35°, Budi: 90°, Citra: 120°. Sudut yang paling besar adalah ....", 
+    options: [{id:'A', text:'Andi'}, {id:'B', text:'Budi'}, {id:'C', text:'Citra'}, {id:'D', text:'semuanya sama'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 8, 
+    text: "Sebuah papan reklame berbentuk persegi panjang. Besar setiap sudutnya adalah ....", 
+    options: [{id:'A', text:'45°'}, {id:'B', text:'60°'}, {id:'C', text:'90°'}, {id:'D', text:'120°'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 9, 
+    text: "Riko menggambar segitiga dengan satu sudut 90°. Segitiga tersebut disebut ....", 
+    options: [{id:'A', text:'segitiga lancip'}, {id:'B', text:'segitiga siku-siku'}, {id:'C', text:'segitiga tumpul'}, {id:'D', text:'segitiga sama sisi'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 10, 
+    text: "Sebuah jam menunjukkan pukul 03.00. Sudut antara jarum pendek dan jarum panjang adalah ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 11, 
+    text: "Siti menggambar sudut 30° dan 70°. Sudut yang lebih besar adalah ....", 
+    options: [{id:'A', text:'30°'}, {id:'B', text:'70°'}, {id:'C', text:'sama besar'}, {id:'D', text:'tidak dapat dibandingkan'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 12, 
+    text: "Ciri utama persegi adalah ....", 
+    options: [{id:'A', text:'dua sisi sama panjang'}, {id:'B', text:'empat sisi sama panjang'}, {id:'C', text:'dua sudut siku-siku'}, {id:'D', text:'tiga sisi sama panjang'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 13, 
+    text: "Ani ingin menggambar sudut 90°. Alat yang paling tepat digunakan adalah ....", 
+    options: [{id:'A', text:'penggaris'}, {id:'B', text:'busur derajat'}, {id:'C', text:'pensil warna'}, {id:'D', text:'penghapus'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 14, 
+    text: "Sebuah segitiga memiliki dua sisi yang sama panjang. Segitiga tersebut adalah ....", 
+    options: [{id:'A', text:'segitiga sembarang'}, {id:'B', text:'segitiga sama kaki'}, {id:'C', text:'segitiga siku-siku'}, {id:'D', text:'segitiga tumpul'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 15, 
+    text: "Pak Guru menggambar sudut 150° di papan tulis. Sudut tersebut termasuk ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 16, 
+    text: "Sudut A = 45°, Sudut B = 95°. Sudut yang termasuk sudut tumpul adalah ....", 
+    options: [{id:'A', text:'sudut A'}, {id:'B', text:'sudut B'}, {id:'C', text:'keduanya'}, {id:'D', text:'tidak ada'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 17, 
+    text: "Sebuah segiempat memiliki semua sisi sama panjang dan semua sudut siku-siku. Bangun tersebut adalah ....", 
+    options: [{id:'A', text:'persegi'}, {id:'B', text:'belah ketupat'}, {id:'C', text:'jajar genjang'}, {id:'D', text:'trapesium'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 18, 
+    text: "Rina menggambar sudut 10°, 50°, dan 80°. Sudut yang paling kecil adalah ....", 
+    options: [{id:'A', text:'10°'}, {id:'B', text:'50°'}, {id:'C', text:'80°'}, {id:'D', text:'semuanya sama'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 19, 
+    text: "Persegi panjang memiliki ....", 
+    options: [{id:'A', text:'empat sisi sama panjang'}, {id:'B', text:'dua pasang sisi sama panjang'}, {id:'C', text:'tiga sisi sama panjang'}, {id:'D', text:'satu sisi lebih panjang'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 20, 
+    text: "Sebuah segitiga memiliki sudut 100°. Segitiga tersebut termasuk ....", 
+    options: [{id:'A', text:'segitiga lancip'}, {id:'B', text:'segitiga tumpul'}, {id:'C', text:'segitiga siku-siku'}, {id:'D', text:'segitiga sama sisi'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 21, 
+    text: "Sebuah pintu dibuka sedikit sehingga membentuk sudut kecil sekitar 20°. Sudut tersebut termasuk ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 22, 
+    text: "Ciri utama trapesium adalah ....", 
+    options: [{id:'A', text:'semua sisi sama panjang'}, {id:'B', text:'memiliki sepasang sisi sejajar'}, {id:'C', text:'empat sisi sama panjang'}, {id:'D', text:'tiga sisi sama panjang'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 23, 
+    text: "Sudut yang besarnya lebih dari 90° tetapi kurang dari 180° disebut ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 24, 
+    text: "Jumlah sudut siku-siku pada bangun persegi panjang adalah ....", 
+    options: [{id:'A', text:'1'}, {id:'B', text:'2'}, {id:'C', text:'3'}, {id:'D', text:'4'}], 
+    correct: 'D' 
+  },
+  { 
+    id: 25, 
+    text: "Segitiga sama sisi memiliki ....", 
+    options: [{id:'A', text:'satu sisi sama panjang'}, {id:'B', text:'dua sisi sama panjang'}, {id:'C', text:'tiga sisi sama panjang'}, {id:'D', text:'tidak ada sisi sama'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 26, 
+    text: "Sudut yang besarnya kurang dari 90° disebut ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 27, 
+    text: "Sudut lurus memiliki besar ....", 
+    options: [{id:'A', text:'90°'}, {id:'B', text:'120°'}, {id:'C', text:'180°'}, {id:'D', text:'360°'}], 
+    correct: 'C' 
+  },
+  { 
+    id: 28, 
+    text: "Sebuah segiempat memiliki dua pasang sisi sejajar. Bangun tersebut adalah ....", 
+    options: [{id:'A', text:'trapesium'}, {id:'B', text:'jajar genjang'}, {id:'C', text:'layang-layang'}, {id:'D', text:'segitiga'}], 
+    correct: 'B' 
+  },
+  { 
+    id: 29, 
+    text: "Sudut 85° termasuk ....", 
+    options: [{id:'A', text:'sudut lancip'}, {id:'B', text:'sudut siku-siku'}, {id:'C', text:'sudut tumpul'}, {id:'D', text:'sudut lurus'}], 
+    correct: 'A' 
+  },
+  { 
+    id: 30, 
+    text: "Bangun datar yang memiliki 4 sisi sama panjang tetapi sudutnya tidak semuanya siku-siku adalah ....", 
+    options: [{id:'A', text:'persegi'}, {id:'B', text:'belah ketupat'}, {id:'C', text:'trapesium'}, {id:'D', text:'persegi panjang'}], 
+    correct: 'B' 
+  },
+
+  // --- II. BENAR ATAU SALAH (31-50) ---
+  { id: 31, text: "Sudut siku-siku besarnya 90°.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 32, text: "Sudut 30° termasuk sudut tumpul.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'B' },
+  { id: 33, text: "Segitiga memiliki tiga sisi.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 34, text: "Persegi memiliki empat sisi sama panjang.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 35, text: "Sudut tumpul lebih besar dari 90°.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 36, text: "Busur derajat digunakan untuk mengukur sudut.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 37, text: "Persegi panjang memiliki empat sudut siku-siku.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 38, text: "Sudut lancip lebih dari 90°.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'B' },
+  { id: 39, text: "Segitiga sama sisi memiliki tiga sudut sama besar.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 40, text: "Sudut lurus besarnya 90°.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'B' },
+  { id: 41, text: "Trapesium memiliki sepasang sisi sejajar.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 42, text: "Belah ketupat memiliki semua sisi sama panjang.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 43, text: "Segitiga tidak memiliki sudut.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'B' },
+  { id: 44, text: "Sudut 120° termasuk sudut tumpul.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 45, text: "Persegi termasuk bangun segiempat.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 46, text: "Sudut 10° termasuk sudut lancip.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 47, text: "Segitiga siku-siku memiliki satu sudut 90°.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 48, text: "Jajar genjang memiliki dua pasang sisi sejajar.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' },
+  { id: 49, text: "Sudut 200° termasuk sudut lancip.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'B' },
+  { id: 50, text: "Bangun datar adalah bangun yang memiliki panjang dan lebar.", options: [{id:'A', text:'benar'}, {id:'B', text:'salah'}], correct: 'A' }    ];
+
+    let currentQuestionIndex = 0;
+    let userAnswers = {};
+    let userData = { name: '', absen: '' };
+    let startTime;
+    let timerInterval;
+
+    function startExam() {
+        userData.name = document.getElementById('name').value.trim();
+        userData.absen = document.getElementById('absen').value.trim();
+
+        if (!userData.name || !userData.absen) {
+            alert("Isi Nama dan Absen!");
+            return;
+        }
+
+        document.getElementById('login-screen').classList.add('hidden');
+        document.getElementById('exam-screen').classList.remove('hidden');
+        document.getElementById('total-questions').innerText = questions.length;
+        
+        startTime = new Date();
+        timerInterval = setInterval(updateTimer, 1000);
+        renderQuestion();
+    }
+
+    function updateTimer() {
+        const diff = Math.floor((new Date() - startTime) / 1000);
+        const m = Math.floor(diff / 60).toString().padStart(2, '0');
+        const s = (diff % 60).toString().padStart(2, '0');
+        document.getElementById('timer').innerText = `${m}:${s}`;
+    }
+
+    function renderQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('current-number').innerText = currentQuestionIndex + 1;
+        document.getElementById('question-text').innerText = q.text;
+        document.getElementById('progress-bar').style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+
+        const container = document.getElementById('options-container');
+        container.innerHTML = '';
+        q.options.forEach(opt => {
+            const isSelected = userAnswers[currentQuestionIndex] === opt.id;
+            const div = document.createElement('div');
+            div.className = `option-item p-4 rounded-xl font-medium flex items-center shadow-sm ${isSelected ? 'selected-option' : ''}`;
+            div.innerHTML = `
+                <div class="w-7 h-7 rounded-full flex items-center justify-center mr-3 text-xs font-bold ${isSelected ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'}">
+                    ${opt.id}
+                </div>
+                <span class="text-sm">${opt.text}</span>
+            `;
+            div.onclick = () => { 
+                userAnswers[currentQuestionIndex] = opt.id; 
+                renderQuestion(); 
+            };
+            container.appendChild(div);
+        });
+
+        document.getElementById('prev-btn').disabled = currentQuestionIndex === 0;
+        document.getElementById('prev-btn').style.opacity = currentQuestionIndex === 0 ? '0.5' : '1';
+        document.getElementById('next-btn').innerText = currentQuestionIndex === questions.length - 1 ? "SELESAI" : "LANJUT";
+    }
+
+    function handleNext() {
+        if (currentQuestionIndex < questions.length - 1) {
+            currentQuestionIndex++;
+            renderQuestion();
+        } else {
+            document.getElementById('confirm-modal').style.display = 'flex';
+        }
+    }
+
+    function prevQuestion() {
+        if (currentQuestionIndex > 0) {
+            currentQuestionIndex--;
+            renderQuestion();
+        }
+    }
+
+    function hideConfirm() { 
+        document.getElementById('confirm-modal').style.display = 'none'; 
+    }
+
+    async function finishExam() {
+        hideConfirm();
+        clearInterval(timerInterval);
+        document.getElementById('loading-overlay').style.display = 'flex';
+
+        let correct = 0;
+        questions.forEach((q, i) => { if (userAnswers[i] === q.correct) correct++; });
+        const score = Math.round((correct / questions.length) * 100);
+
+        const payload = new URLSearchParams();
+        payload.append('timestamp', new Date().toLocaleString());
+        payload.append('nama', userData.name);
+        payload.append('absen', userData.absen);
+        payload.append('skor', score);
+        payload.append('durasi', document.getElementById('timer').innerText);
+
+        try {
+            await fetch(scriptURL, { method: 'POST', mode: 'no-cors', body: payload });
+            showResult(score, correct);
+        } catch (e) {
+            showResult(score, correct);
+        } finally {
+            document.getElementById('loading-overlay').style.display = 'none';
+        }
+    }
+
+    function showResult(score, correct) {
+        document.getElementById('exam-screen').innerHTML = `
+            <div class="flex flex-col items-center justify-center text-center h-full py-6">
+                <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
+                    <svg class="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"></path></svg>
+                </div>
+                <h1 class="text-xl font-black mb-1">UJIAN SELESAI</h1>
+                <p class="text-xs text-gray-500 mb-6">${userData.name} - Absen ${userData.absen}</p>
+                
+                <div class="text-6xl font-black text-blue-600 mb-6">${score}</div>
+
+                <div class="grid grid-cols-2 gap-3 w-full mb-6">
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Benar</div>
+                        <div class="text-lg font-bold text-green-600">${correct}</div>
+                    </div>
+                    <div class="bg-gray-50 p-3 rounded-xl border border-gray-100">
+                        <div class="text-[10px] text-gray-400">Salah</div>
+                        <div class="text-lg font-bold text-red-500">${questions.length - correct}</div>
+                    </div>
+                </div>
+
+                <button onclick="location.reload()" class="btn-nav w-full py-3 uppercase">Kembali</button>
+            </div>
+        `;
+    }
+</script>
+</body>
+</html>
